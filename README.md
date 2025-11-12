@@ -22,7 +22,7 @@ Adapted from [MaSIF](https://github.com/LPDI-EPFL/masif/tree/master/source/masif
 ### Download
 First, download the zip file from GitHub:   
 ```bash
-wget https://github.com/yuyuan871111/ProBiSEnSe_pymol_plugin/releases/download/0.1.1/ProBiSEnSe_pymol_plugin.zip
+wget https://github.com/yuyuan871111/FragBEST_pymol_plugin/releases/download/0.1.1/FragBEST_pymol_plugin.zip
 ```
 Then, install the plugin using `Plugin Manager` in PyMOL.
 1. `Install New Plugin` > `Install from local file` > `Choose file...` > go to the path where you downloaded your zip file (no need to decompress) > `install`   
@@ -80,5 +80,5 @@ superply 5N69_complex, 5N69_protein.ply, 8QYR  # superimpose the ply
 zip -r {filename.zip} {foldername}
 
 # e.g.
-zip -r ProBiSEnSe_pymol_plugin.zip ProBiSEnSe_pymol_plugin
+zip -r FragBEST_pymol_plugin.zip FragBEST_pymol_plugin
 ```
