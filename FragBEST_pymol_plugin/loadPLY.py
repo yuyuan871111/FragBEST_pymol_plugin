@@ -438,4 +438,4 @@ def load_ply(
     # Grouping all objects
     group_names = " ".join(obj_list)
     print(group_names)
-    cmd.group(filename, group_names)
+    cmd.group(custom_name, group_names)
