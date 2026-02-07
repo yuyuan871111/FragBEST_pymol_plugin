@@ -1,0 +1,22 @@
+FragBEST PyMOL plugin.
+This repository is a fork and contains modifications of the MaSIF (Molecular Surface Interaction Fingerprints) project. Specifically, it comes from MaSIF's PyMOL plugin.
+
+Upstream project:
+  https://github.com/LPDI-EPFL/masif/tree/master/source/masif_pymol_plugin
+
+Copyright (c) ORIGINAL COPYRIGHT 2019 - Gainza P, Sverrisson F, Monti F, Rodola, Bronstein MM, Correia BE
+Copyright (c) 2024-2026 Yu-Yuan (Stuart) Yang / Arianna Fornili's Lab (modifications)
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+A copy of the License is provided in the LICENSE file in this repository
+and at http://www.apache.org/licenses/LICENSE-2.0
+
+Modifications in this fork:
+  - Add new method for pymol plugin (visualize the label and deep-learning model's prediction for each vertex)
+  - Update readme and guide the user to use it 
+
+Source for modifications:
+  https://github.com/yuyuan871111/FragBEST_pymol_plugin
+
+NOTICE: This product includes software developed by the MaSIF authors and contributors.
