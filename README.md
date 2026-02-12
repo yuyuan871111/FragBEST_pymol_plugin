@@ -1,6 +1,6 @@
 # FragBEST pymol plugin
-**FragBEST** represents **Frag**ment-**B**ased protein **E**nsemble semantic **S**egmentation **T**ool.  
-Adapted from [MaSIF](https://github.com/LPDI-EPFL/masif/tree/master/source/masif_pymol_plugin), it is a visualization tool for the feature-rich surface files using PyMOL.   
+This plugin can be used to visualise feature-rich surface files using PyMOL. It can be used in conjunction with our **FragBEST** (**Frag**ment-**B**ased protein **E**nsemble semantic **S**egmentation **T**ool) method, and it has been adapted 
+from [MaSIF](https://github.com/LPDI-EPFL/masif/tree/master/source/masif_pymol_plugin).
 
 ![examples](./img/examples.jpg)
 ***Example data (PDB:5N69) open in Zenodo:*** [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14950638.svg)](https://doi.org/10.5281/zenodo.14950638)
