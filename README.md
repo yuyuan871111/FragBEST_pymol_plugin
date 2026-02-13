@@ -15,7 +15,7 @@ from the original `masif_pymol_plugin` in [MaSIF](https://github.com/LPDI-EPFL/m
 * Adding a function to focus only on the interest pt (required the **interest** column in the .ply file)  
 * Adding a function not to show the surface to increase the speed of loading a file.  
 * Visualizing additional features in .ply files: **label**, **pred** (colored with different classes).  
-* Adding a function to superimpose the .ply files with the pdb alignment.  
+* Adding a function to superimpose the .ply files with a reference pdb.  
 
 ## Differences between the original masif_pymol_plugin and the modified FragBEST_pymol_plugin tool:
 ```code
@@ -35,9 +35,10 @@ superPLY.py        # ADDED: add a method to superimpose a ply file to a referenc
 
 ## How to use FragBEST_pymol_plugin?
 ### Download
-First, download the zip file from GitHub:   
+First, download the zip file from GitHub Release page [here](https://github.com/yuyuan871111/FragBEST_pymol_plugin/releases/):   
 ```bash
-wget https://github.com/yuyuan871111/FragBEST_pymol_plugin/releases/download/0.1.1/FragBEST_pymol_plugin.zip
+# e.g.
+wget https://github.com/yuyuan871111/FragBEST_pymol_plugin/releases/download/0.1.3/FragBEST_pymol_plugin.zip
 ```
 Then, install the plugin using `Plugin Manager` in PyMOL.
 1. `Install New Plugin` > `Install from local file` > `Choose file...` > go to the path where you downloaded your zip file (no need to decompress) > `install`   
