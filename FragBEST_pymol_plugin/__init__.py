@@ -4,7 +4,7 @@ masif_pymol_plugin: https://github.com/LPDI-EPFL/masif/tree/master/source/masif_
 
 Original work Copyright (c) 2019 Gainza P, Sverrisson F, Monti F, Rodola,
 Bronstein MM, Correia BE
-Modifications Copyright (c) 2024-2026 Yu-Yuan (Stuart) Yang /
+FragBEST_pymol_plugin Copyright (c) 2024-2026 Yu-Yuan (Stuart) Yang /
 Arianna Fornili's Lab
 
 Licensed under the Apache License, Version 2.0 (the "License");
