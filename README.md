@@ -17,6 +17,21 @@ from the original `masif_pymol_plugin` in [MaSIF](https://github.com/LPDI-EPFL/m
 * Visualizing additional features in .ply files: **label**, **pred** (colored with different classes).  
 * Adding a function to superimpose the .ply files with the pdb alignment.  
 
+## Differences between the original masif_pymol_plugin and the modified FragBEST_pymol_plugin tool:
+```code
+# FragBEST_pymol_plugin
+__init__.py        # MODIFIED from masif_pymol_plugin: add "superply" and "loadfrag" methods
+simple_mesh.py     # MODIFIED from masif_pymol_plugin: use modern code style for debugging
+loadPLY.py         # MODIFIED from masif_pymol_plugin: work with our workflow for loading PLY files
+loadDOTS.py        # REMOVED from masif_pymol_plugin
+masif_plugin.py    # REMOVED from masif_pymol_plugin
+color_palette.py   # ADDED: define the color code (RGB matrix) for the label of vertices
+loadFRAG.py        # ADDED: add a method to load PDB with fragments into pymol
+loadPREDICT.py     # ADDED: add a method to load prediction's features
+superPLY.py        # ADDED: add a method to superimpose a ply file to a reference pdb (required the corresponding pdb file for the ply file)
+```
+
+
 
 ## How to use FragBEST_pymol_plugin?
 ### Download
