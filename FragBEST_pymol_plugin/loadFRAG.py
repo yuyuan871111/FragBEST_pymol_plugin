@@ -1,7 +1,16 @@
 """
-    loadFRAG.py: This pymol function loads PDB file with fragments into pymol.
-    It is modified by Yu-Yuan (Stuart) Yang - Arianna group QMUL 2024-2027
-    This is part of probinsense_pymol_plugin.
+This file is a newly-added file (compared to masif_pymol_plugin).
+
+FragBEST_pymol_plugin Copyright (c) 2024-2026 Yu-Yuan (Stuart) Yang /
+Arianna Fornili's Lab
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+
+
+loadFRAG.py: This pymol function loads PDB file with fragments into pymol.
 """
 
 import numpy as np

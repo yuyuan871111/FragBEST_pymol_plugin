@@ -1,7 +1,19 @@
 """
-simple_mesh.py: Simple ply loading class.
-Modified by Yu-Yuan Yang 2024
+This file is modified from masif_pymol_plugin.
+masif_pymol_plugin: https://github.com/LPDI-EPFL/masif/tree/master/source/masif_pymol_plugin
 
+Original work Copyright (c) 2019 Gainza P, Sverrisson F, Monti F, Rodola,
+Bronstein MM, Correia BE
+FragBEST_pymol_plugin Copyright (c) 2024-2026 Yu-Yuan (Stuart) Yang /
+Arianna Fornili's Lab
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Original header:
+simple_mesh.py: Simple ply loading class.
 I created this class to avoid the need to install pymesh if the only goal is to load ply files.
 Use this only for the pymol plugin. Currently only supports ascii ply files.
 Pablo Gainza - LPDI STI EPFL 2019

@@ -1,7 +1,7 @@
 """
 This file is a newly-added file (compared to masif_pymol_plugin).
 
-Modifications Copyright (c) 2024-2026 Yu-Yuan (Stuart) Yang /
+FragBEST_pymol_plugin Copyright (c) 2024-2026 Yu-Yuan (Stuart) Yang /
 Arianna Fornili's Lab
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -9,7 +9,8 @@ you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
     http://www.apache.org/licenses/LICENSE-2.0
 
-This is a color palette for PyMOL.
+    
+color_palette.py: a color palette for PyMOL.
 """
 
 from pymol.cgo import COLOR
