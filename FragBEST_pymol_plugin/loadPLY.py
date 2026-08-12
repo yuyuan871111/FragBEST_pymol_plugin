@@ -19,29 +19,24 @@ This file is part of MaSIF.
 Released under an Apache License 2.0
 """
 
+import re
 from pathlib import Path
 from typing import Callable, Union
 
 import numpy as np
 from pymol import cmd
-from pymol.cgo import BEGIN, COLOR, END, LINES, NORMAL, SPHERE, TRIANGLES, VERTEX
+from pymol.cgo import (
+    BEGIN,
+    COLOR,
+    END,
+    LINES,
+    NORMAL,
+    SPHERE,
+    TRIANGLES,
+    VERTEX,
+)
 
 from .color_palette import colorDict, colorDict_for_labels
-
-# def color_gradient(vals, color1, color2):
-#     """
-#     Create a gradient color from color 1 to whitish, to color 2. val goes from 0 (color1) to 1 (color2).
-#     """
-#     c1 = Color("white")
-#     c2 = Color("orange")
-#     ix = np.floor(vals * 100).astype(int)
-#     crange = list(c1.range_to(c2, 100))
-#     mycolor = []
-#     print(crange[0].get_rgb())
-#     for x in ix:
-#         myc = crange[x].get_rgb()
-#         mycolor.append([COLOR, myc[0], myc[1], myc[2]])
-#     return mycolor
 
 
 def iface_color(iface):
@@ -74,11 +69,99 @@ def hphob_color(hphob):
     return mycolor
 
 
+def gradient_label_color(label):
+    """Color class 0 gray and all other classes along a red-to-purple rainbow.
+
+    The gradient is assigned to the sorted, non-zero class IDs present in the
+    mesh. This supports an arbitrary number of classes while keeping adjacent
+    class IDs visually ordered. Class 0 is deliberately excluded from the
+    rainbow because it represents the background.
+    """
+    labels = np.asarray(label, dtype=int)
+    colors = np.empty((len(labels), 3), dtype=float)
+    background = labels == 0
+    colors[background] = colorDict["gray"][1:]
+
+    classes, class_indices = np.unique(labels[~background], return_inverse=True)
+    if len(classes):
+        # HSV hue 0.0 is red; 0.78 is a purple/magenta. Traversing the hue
+        # range gives red, yellow, green, cyan, blue, and finally purple.
+        hues = np.linspace(0.0, 0.78, len(classes))
+        hue = hues[class_indices]
+        sector = np.floor(hue * 6).astype(int) % 6
+        fraction = hue * 6 - np.floor(hue * 6)
+        rainbow = np.empty((len(hue), 3), dtype=float)
+        for value in range(6):
+            mask = sector == value
+            fraction_at_sector = fraction[mask]
+            zeros = np.zeros_like(fraction_at_sector)
+            ones = np.ones_like(fraction_at_sector)
+            if value == 0:
+                rainbow[mask] = np.column_stack((ones, fraction_at_sector, zeros))
+            elif value == 1:
+                rainbow[mask] = np.column_stack(
+                    (ones - fraction_at_sector, ones, zeros)
+                )
+            elif value == 2:
+                rainbow[mask] = np.column_stack((zeros, ones, fraction_at_sector))
+            elif value == 3:
+                rainbow[mask] = np.column_stack(
+                    (zeros, ones - fraction_at_sector, ones)
+                )
+            elif value == 4:
+                rainbow[mask] = np.column_stack((fraction_at_sector, zeros, ones))
+            else:
+                rainbow[mask] = np.column_stack(
+                    (ones, zeros, ones - fraction_at_sector)
+                )
+        colors[~background] = rainbow
+
+    return [[COLOR, red, green, blue] for red, green, blue in colors]
+
+
 def label_color(label):
-    mycolor = []
-    for i in range(len(label)):
-        mycolor.append(colorDict_for_labels[str(int(label[i]))])
-    return mycolor
+    """Legacy fixed palette for labels 0 through 10."""
+    return [colorDict_for_labels[str(int(value))] for value in label]
+
+
+def pymol_object_name(name):
+    """Return a PyMOL-safe object name without path separators or punctuation."""
+    safe_name = re.sub(r"[^A-Za-z0-9_]", "_", Path(str(name)).name)
+    return safe_name.strip("_") or "ply"
+
+
+def show_vertex_text_labels(
+    verts, values, name, interest=None, normals=None, offset=0.3
+):
+    """Show screen-facing integer labels offset from selected mesh vertices."""
+    indices = (
+        np.flatnonzero(np.asarray(interest) != 0)
+        if interest is not None
+        else np.arange(len(verts))
+    )
+    positions = np.asarray(verts, dtype=float)[indices].copy()
+    directions = np.tile(np.array([1.0, 1.0, 1.0]) / np.sqrt(3), (len(indices), 1))
+    if normals is not None:
+        candidate_directions = np.asarray(normals, dtype=float)[indices]
+        lengths = np.linalg.norm(candidate_directions, axis=1)
+        valid = lengths > 0
+        directions[valid] = candidate_directions[valid] / lengths[valid, None]
+    positions += float(offset) * directions
+
+    cmd.delete(name)
+    for position, value in zip(positions, np.asarray(values)[indices]):
+        cmd.pseudoatom(
+            name,
+            pos=position.tolist(),
+            label=str(int(value)),
+            quiet=1,
+        )
+    cmd.hide("everything", name)
+    cmd.show("labels", name)
+    cmd.set("label_color", "white", name)
+    cmd.set("label_outline_color", "black", name)
+    cmd.set("label_size", 14, name)
+    return name
 
 
 def true_false_label_color(label):
@@ -162,26 +245,33 @@ def draw_on(
     Output:
         - `obj`: list of cgo commands
     """
-    obj = []
-    color_array_surf = color_style(data)
-
     if where == "vertex":
-        # Check if dotSize is a float or a list
-        if type(dotSize) is float or type(dotSize) is int:
-            dotSize = [dotSize] * len(verts)
-            dotSize = np.array(dotSize)
+        # Select first: an interest-point view should not spend time creating
+        # colors or CGO commands for the (usually much larger) background.
+        indices = (
+            np.flatnonzero(np.asarray(interest) != 0)
+            if interest is not None
+            else np.arange(len(verts))
+        )
+        selected_data = np.asarray(data)[indices]
+        selected_verts = np.asarray(verts)[indices]
+        color_array = color_style(selected_data)
+        selected_sizes = None if np.isscalar(dotSize) else np.asarray(dotSize)[indices]
 
-        # Plot vertices
-        for v_ix, each_dotSize in enumerate(dotSize):
-            vert = verts[v_ix]
-            colorToAdd = color_array_surf[v_ix]
-
-            if interest is not None and interest[v_ix] == 0:
-                continue
-            obj.extend(colorToAdd)
+        obj = []
+        for position, (vert, color_to_add) in enumerate(
+            zip(selected_verts, color_array)
+        ):
+            each_dotSize = (
+                dotSize if selected_sizes is None else selected_sizes[position]
+            )
+            obj.extend(color_to_add)
             obj.extend([SPHERE, vert[0], vert[1], vert[2], each_dotSize])
+        return obj
 
-    elif where == "surface":
+    if where == "surface":
+        obj = []
+        color_array_surf = color_style(data)
         # Plot faces
         for tri in faces:
             vert1 = verts[int(tri[0])]
@@ -210,10 +300,9 @@ def draw_on(
             obj.extend([VERTEX, (vert3[0]), (vert3[1]), (vert3[2])])
             obj.append(END)
 
-    else:
-        raise ValueError("where should be 'vertex' or 'surface'")
+        return obj
 
-    return obj
+    raise ValueError("where should be 'vertex' or 'surface'")
 
 
 def draw_mesh(verts, faces, interest=None):
@@ -258,7 +347,7 @@ def draw_features(**kwargs):
     obj_list.append(name)
 
     # Draw on surface
-    if "normals" in kwargs and kwargs["ignore_surface"] == 0:
+    if kwargs.get("normals") is not None and kwargs["ignore_surface"] == 0:
         obj = draw_on(
             data=kwargs["data"],
             verts=kwargs["verts"],
@@ -279,18 +368,37 @@ def load_ply(
     filename: Union[str, Path],
     interest_pt: int = 1,
     ignore_surface: int = 0,
+    label_palette: str = "gradient",
+    show_vertex_labels: int = 0,
     custom_name: str = None,
     dotSize: float = 0.2,
+    text_offset: float = 0.3,
 ):
     """
-    Main funcion to load a ply file into pymol.
+    Load a PLY file into PyMOL.
+
+    ``label_palette`` may be ``"gradient"`` (the default, supports any
+    number of labels) or ``"legacy"`` (the original fixed palette for labels
+    0 through 10). Set integer ``show_vertex_labels`` to ``1`` to display
+    available ``vertex_label`` and ``vertex_pred`` class numbers next to each
+    selected vertex.
     """
     # Check
     ignore_surface = int(ignore_surface)
     interest_pt = int(interest_pt)
+    show_vertex_labels = int(show_vertex_labels)
     dotSize = float(dotSize)
+    text_offset = float(text_offset)
+    label_palette = str(label_palette).lower()
     assert ignore_surface == 0 or ignore_surface == 1, "ignore_surface should be 0 or 1"
     assert interest_pt == 0 or interest_pt == 1, "interest_pt should be 0 or 1"
+    assert show_vertex_labels in {0, 1}, "show_vertex_labels should be 0 or 1"
+    assert text_offset >= 0, "text_offset should be non-negative"
+    if label_palette not in {"gradient", "legacy"}:
+        raise ValueError("label_palette should be 'gradient' or 'legacy'")
+    label_color_style = (
+        gradient_label_color if label_palette == "gradient" else label_color
+    )
 
     # Load the mesh
     ## Pymesh should be faster and supports binary ply files. However it is difficult to install with pymol...
@@ -303,6 +411,7 @@ def load_ply(
     verts = mesh.vertices
     faces = mesh.faces
 
+    normals = None
     if "vertex_nx" in mesh.get_attribute_names():
         nx = mesh.get_attribute("vertex_nx")
         ny = mesh.get_attribute("vertex_ny")
@@ -379,13 +488,14 @@ def load_ply(
 
     # Draw label
     if "vertex_label" in mesh.get_attribute_names():
+        vertex_labels = mesh.get_attribute("vertex_label")
         label = {
             "name": "label",
-            "data": mesh.get_attribute("vertex_label"),
+            "data": vertex_labels,
             "verts": verts,
             "faces": faces,
             "normals": normals,
-            "color_style": label_color,
+            "color_style": label_color_style,
             "interest": interest,
             "ignore_surface": ignore_surface,
             "dotSize": dotSize,
@@ -395,15 +505,28 @@ def load_ply(
         objs = draw_features(**label)
         obj_list.extend(objs)
 
+        if show_vertex_labels:
+            name = "labelname_vert_" + pymol_object_name(custom_name)
+            show_vertex_text_labels(
+                verts,
+                vertex_labels,
+                name,
+                interest=interest,
+                normals=normals,
+                offset=text_offset,
+            )
+            obj_list.append(name)
+
     # Draw prediction
     if "vertex_pred" in mesh.get_attribute_names():
+        vertex_predictions = mesh.get_attribute("vertex_pred")
         pred = {
             "name": "pred",
-            "data": mesh.get_attribute("vertex_pred"),
+            "data": vertex_predictions,
             "verts": verts,
             "faces": faces,
             "normals": normals,
-            "color_style": label_color,
+            "color_style": label_color_style,
             "interest": interest,
             "ignore_surface": ignore_surface,
             "dotSize": 0.2 * mesh.get_attribute("vertex_predprobs"),
@@ -412,6 +535,18 @@ def load_ply(
         # Draw features
         objs = draw_features(**pred)
         obj_list.extend(objs)
+
+        if show_vertex_labels:
+            name = "predname_vert_" + pymol_object_name(custom_name)
+            show_vertex_text_labels(
+                verts,
+                vertex_predictions,
+                name,
+                interest=interest,
+                normals=normals,
+                offset=text_offset,
+            )
+            obj_list.append(name)
 
     # Draw comparison of the prediction and the label
     if (

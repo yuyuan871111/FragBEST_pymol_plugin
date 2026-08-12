@@ -15,7 +15,11 @@ from the original `masif_pymol_plugin` in [MaSIF](https://github.com/LPDI-EPFL/m
 * Adding a function to focus only on the interest pt (required the **interest** column in the .ply file)  
 * Adding a function not to show the surface to increase the speed of loading a file.  
 * Visualizing additional features in .ply files: **label**, **pred** (colored with different classes).  
+  Background class `0` is gray; by default, all other labels use a
+  red-to-purple rainbow that supports any number of classes. The original
+  fixed 0--10 palette remains available with `label_palette="legacy"`.
 * Adding a function to superimpose the .ply files with a reference pdb.  
+* Loading ASCII and standard binary PLY meshes efficiently without an additional mesh-library dependency.
 
 ## Differences between the original masif_pymol_plugin and the modified FragBEST_pymol_plugin tool:
 ```code
@@ -48,8 +52,12 @@ Then, install the plugin using `Plugin Manager` in PyMOL.
 ### Load
 If you have installed the plugin in your PyMOL, simply type:
 ```bash
-# loadply [.ply file], [interest_pt], [ignore_surface]
+# loadply [.ply file], [interest_pt], [ignore_surface], [label_palette], [show_vertex_labels]
 loadply sample.ply, 1, 0
+# Use the original 0--10 label palette instead of the default rainbow:
+loadply sample.ply, 1, 0, legacy
+# Display available integer true-label and prediction classes next to each selected vertex:
+loadply sample.ply, 1, 1, gradient, 1
 ```
 
 Alternatively:   
@@ -62,6 +70,46 @@ Note that:
 * `filename`: indicate your .ply file
 * `insterest_pt`: if you want to draw only the regions of interest, set it `1`. Otherwise, set it `0` for the whole protein. (default: `1`)
 * `ignore_surface`: if you want to draw the surface as well, set it `0`. Otherwise, set it `1` to ignore the surface. (default: `0`)
+* `label_palette`: choose `gradient` (default) or `legacy` for the `label` and `pred` feature colours.
+* `show_vertex_labels`: set integer `1` to display every selected vertex's
+  `vertex_label` and `vertex_pred` (when present) as integers. Set `0` to hide
+  the text (default: `0`).
+* `text_offset`: distance between each vertex and its text label (default:
+  `0.3`). Labels are screen-facing and therefore remain readable as the scene
+  rotates.
+
+### Label colours
+
+The default `label_palette="gradient"` keeps class `0` as light gray. It
+assigns all non-zero classes present in the loaded PLY file to evenly spaced
+colours along this rainbow, in ascending class-ID order:
+
+```text
+red → yellow → green → cyan → blue → purple
+```
+
+For example, if classes `1`--`12` are present, class `1` is red, class `12`
+is purple, and the classes between them are evenly distributed through the
+rainbow. This palette supports more than ten classes.
+
+Use `label_palette="legacy"` to reproduce the original fixed palette:
+
+| Class | Colour |
+| --- | --- |
+| 0 | light gray |
+| 1 | blue |
+| 2 | green |
+| 3 | yellow |
+| 4 | orange |
+| 5 | red |
+| 6 | sky blue |
+| 7 | sea green |
+| 8 | yellow tint |
+| 9 | hot pink |
+| 10 | green tint |
+
+The legacy palette only defines classes `0`--`10`; use the default gradient
+when labels may exceed `10`.
 
 #### Test with example files [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14950638.svg)](https://doi.org/10.5281/zenodo.14950638)
 ```bash

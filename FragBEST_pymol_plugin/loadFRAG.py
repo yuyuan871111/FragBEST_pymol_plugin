@@ -13,7 +13,6 @@ You may obtain a copy of the License at
 loadFRAG.py: This pymol function loads PDB file with fragments into pymol.
 """
 
-import numpy as np
 from pymol import cmd
 
 from .color_palette import colorDict_for_labels
