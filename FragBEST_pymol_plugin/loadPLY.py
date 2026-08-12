@@ -430,7 +430,7 @@ def load_ply(
     # Initialisation
     obj_list = []
     if custom_name is None:
-        custom_name = filename
+        custom_name = pymol_object_name(filename)
 
     # Draw APBS charges
     if "vertex_charge" in mesh.get_attribute_names():
