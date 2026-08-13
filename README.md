@@ -42,7 +42,7 @@ superPLY.py        # ADDED: add a method to superimpose a ply file to a referenc
 First, download the zip file from GitHub Release page [here](https://github.com/yuyuan871111/FragBEST_pymol_plugin/releases/):   
 ```bash
 # e.g.
-wget https://github.com/yuyuan871111/FragBEST_pymol_plugin/releases/download/0.1.3/FragBEST_pymol_plugin.zip
+wget https://github.com/yuyuan871111/FragBEST_pymol_plugin/releases/download/0.2.0/FragBEST_pymol_plugin.zip
 ```
 Then, install the plugin using `Plugin Manager` in PyMOL.
 1. `Install New Plugin` > `Install from local file` > `Choose file...` > go to the path where you downloaded your zip file (no need to decompress) > `install`   
