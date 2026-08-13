@@ -74,9 +74,6 @@ Note that:
 * `show_vertex_labels`: set integer `1` to display every selected vertex's
   `vertex_label` and `vertex_pred` (when present) as integers. Set `0` to hide
   the text (default: `0`).
-* `text_offset`: distance between each vertex and its text label (default:
-  `0.3`). Labels are screen-facing and therefore remain readable as the scene
-  rotates.
 
 ### Label colours
 
@@ -132,7 +129,6 @@ superply sample, sample.ply, reference
 ```bash
 # in your pymol console
 load 5N69_complex.pdb                      # load the pdb file
-loadply 5N69_protein.ply, 1, 0, legacy     # load the ply file (using legacy color)
 
 fetch 8QYR                    # fetch a reference PDB file
 
