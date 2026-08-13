@@ -79,6 +79,19 @@ from FragBEST_pymol_plugin import __init_plugin__
 __init_plugin__(None)  # Enables loadply, loadfrag, loadpredict, and superply.
 ```
 
+## 5. Zip as a pymol plugin
+```bash
+mkdir pkgs   
+cp -r FragBEST_pymol_plugin pkgs/.   
+cp LICENSE pkgs/FragBEST_pymol_plugin/.  
+cp NOTICE pkgs/FragBEST_pymol_plugin/.  
+cp README.md pkgs/FragBEST_pymol_plugin/.
+rm -rf pkgs/FragBEST_pymol_plugin/__pycache__
+zip -r FragBEST_pymol_plugin.zip pkgs/FragBEST_pymol_plugin
+rm -rf pkgs
+```
+
+
 ## Common failures
 
 - **`ModuleNotFoundError: FragBEST_pymol_plugin`**: run from the repository
