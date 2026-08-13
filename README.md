@@ -131,18 +131,32 @@ superply sample, sample.ply, reference
 #### Test with example files [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14950638.svg)](https://doi.org/10.5281/zenodo.14950638)
 ```bash
 # in your pymol console
-load 5N69_complex.pdb         # load the pdb file
-loadply 5N69_protein.ply      # load the ply file 
+load 5N69_complex.pdb                      # load the pdb file
+loadply 5N69_protein.ply, 1, 0, legacy     # load the ply file (using legacy color)
 
 fetch 8QYR                    # fetch a reference PDB file
 
 superply 5N69_complex, 5N69_protein.ply, 8QYR  # superimpose the ply 
 ```
 
-## Pack the script into a zip file
+## Troubleshooting
+If you face an issue when installing the pymol plugin using pymol-open-source on Mac. 
 ```bash
-zip -r {filename.zip} {foldername}
+# Error message:
+... __getattr__ 'askyesno': ('question', QMB.Yes, QMB.No),
+                                         ^^^^^^^ AttributeError: type object 'QMessageBox' has no attribute 'Yes'
 
-# e.g.
-zip -r FragBEST_pymol_plugin.zip FragBEST_pymol_plugin
+```
+
+You can try installing within a conda environment with `PyQt5`.
+
+```bash
+# installation
+conda create -n pymol
+conda activate pymol
+conda install conda-forge::pymol-open-source
+pip install PyQt5
+
+# run pymol
+pymol
 ```
